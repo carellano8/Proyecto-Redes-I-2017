@@ -2,8 +2,8 @@
  *
  */
 
-#include <crc16.hpp>
-#include <hamming.hpp>
+#include "crc16.hpp"
+#include "hamming.hpp"
 
 int main(int argc, char **argv)
 {
