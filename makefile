@@ -8,7 +8,7 @@ FLAGS=-Wall -g
 # Para linkear todos los objetos y generar un ejecutable
 all:$(OBJS)
 	$(CC) $(FLAGS)  $(OBJS) -o $(EXE)
-	./$(EXE)
+	./$(EXE) 
 
 ddd:$(OBJS)
 	$(CC) $(FLAGS)  $(OBJS) -o $(EXE)

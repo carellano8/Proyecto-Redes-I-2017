@@ -8,28 +8,60 @@
 void crc16::enviar(string msj){
 	size_t i,n;
 	string bufferMsj[MAXMSJ/MAXT];
-	binario bufferB[MAXMSJ/MAXT];
-	i=0;n=0;
-	while(i<msj.size()){
-		bufferMsj[n]=msj.substr(i,MAXT);
-		i+=MAXT;n++;
-	}
+	binario bufferB[MAXMSJ/MAXT*8];
+	ofstream archivo("salidacrc.txt");
 
-	for (i = 0; i < n; ++i){
-		bufferB[i]=msjTobin(bufferMsj[i]);
-		if(i==n-1){
-			bufferB[i]=insertarCabecera(bufferB[i],i,1,0,0);// Inserta el bit de fin de trasmision demensaje
-		}else{
-			bufferB[i]=insertarCabecera(bufferB[i],i,0,0,0);
+	if(archivo.is_open()){
+		i=0;n=0;
+		while(i<msj.size()){
+			bufferMsj[n]=msj.substr(i,MAXT);
+			i+=MAXT;n++;
 		}
-		bufferB[i]=crc(bufferB[i]);
-		bufferB[i]=relleno_Bit(bufferB[i]);
-		bufferB[i]=insercion_banderas(bufferB[i]);
-		cout<<"Trama: "<<bufferB[i]<<endl;
+
+		for (i = 0; i < n; ++i){
+			bufferB[i]=msjTobin(bufferMsj[i]);
+			if(i==n-1){
+				bufferB[i]=insertarCabecera(bufferB[i],i,1);// Inserta el bit de fin de trasmision demensaje
+			}else{
+				bufferB[i]=insertarCabecera(bufferB[i],i,0);
+			}
+			bufferB[i]=crc(bufferB[i]+"0000000000000000");
+			bufferB[i]=relleno_Bit(bufferB[i]);
+			bufferB[i]=insercion_banderas(bufferB[i]);
+			//cout<<"Tamano: "<<bufferB[i].size()<<endl;
+			archivo/*<<"Trama: "*/<<bufferB[i]<<endl;
+		}
+		cout<<"tramas Enviadas "<<endl;
+	}
+	archivo.close();
+	
+}
+
+/*------------------------------------------------------------------------------------------------*/
+///----------------------------------------------------------------------------------------------///
+/*------------------------------------------------------------------------------------------------*/	
+void crc16::recibir(binario bin){
+	size_t i,li,ls,j;
+	// binario bufferTramas[MAXMSJ/MAXT];
+	binario bufferB[MAXMSJ/MAXT*8];
+	 i=0;j=0;
+	while(i<bin.size()){
+		
+		li=bin.find("01111110",i);
+		ls=bin.find("01111110",i+8);
+		bufferB[j]=bin.substr(li,(ls+8)-li);
+
+		// cout<<"Inferior "<<li<<" Superior "<<ls<<" Distancia "<<(ls+8)-li<<endl;
+		cout<<bufferB[j]<<endl;
+	j++;
+	i=ls+8;;
 	}
 
-	
-	}
+
+
+
+}
+
 /*------------------------------------------------------------------------------------------------*/
 ///----------------------------------------------------------------------------------------------///
 /*------------------------------------------------------------------------------------------------*/	
@@ -37,7 +69,7 @@ void crc16::enviar(string msj){
 binario crc16::crc(binario bin_in){
 		//Polinomio genrador x16+x15+x2+1
 		binario crc16="11000000000000101";//polinomio generador
-		binario bin_out=bin_in+"0000000000000000", resto="", aux="";//copia de la trama inicial los r bit 0 del grado del polinomio
+		binario bin_out=bin_in, resto="", aux="";//copia de la trama inicial los r bit 0 del grado del polinomio
 		//resto de la divicion xor, auxiliar
 		size_t i,crcLong=crc16.size();//variable de for y longitud de el polinomio
 		
@@ -68,9 +100,7 @@ binario crc16::crc(binario bin_in){
 /*------------------------------------------------------------------------------------------------*/		
 	//inserta las banderas de inicio y fin a una trama
 binario crc16::insercion_banderas(binario bin_in){
-			binario bin_out="01111110";
-			bin_out+=bin_in;
-			return bin_out+"01111110";
+			return "01111110"+bin_in+"01111110";
 			}
 /*------------------------------------------------------------------------------------------------*/
 ///----------------------------------------------------------------------------------------------///
@@ -115,8 +145,8 @@ binario crc16::msjTobin(string mensaje){
 ///----------------------------------------------------------------------------------------------///
 /*------------------------------------------------------------------------------------------------*/
 // Inserta la cabecera
-binario crc16::insertarCabecera(binario bin_in,int CE,int T,int CR,int control){
+binario crc16::insertarCabecera(binario bin_in,int CE,int T){
 
-		return ("0"+bitset<2>(CE).to_string()+bitset<1>(T).to_string()+bitset<2>(CR).to_string()+bitset<2>(control).to_string()+bin_in);
+		return ("0"+bitset<4>(CE).to_string()+bitset<1>(T).to_string()+bin_in);
 }
 

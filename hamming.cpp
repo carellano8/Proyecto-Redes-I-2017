@@ -7,8 +7,9 @@
 void hamming::enviar(string msj){
 	size_t i,n;
 	string bufferMsj[MAXMSJ/MAXT];
-	binario bufferB[MAXMSJ/MAXT];
+	binario bufferB[MAXMSJ/MAXT*8];
 	i=0;n=0;
+	
 	while(i<msj.size()){
 		bufferMsj[n]=msj.substr(i,MAXT);
 		i+=MAXT;n++;
@@ -16,27 +17,53 @@ void hamming::enviar(string msj){
 
 	for (i = 0; i < n; ++i){
 		bufferB[i]=msjTobin(bufferMsj[i]);
+		
 		if(i==n-1){
-			bufferB[i]=insertarCabecera(bufferB[i],i,1,0,0);// Inserta el bit de fin de trasmision demensaje
+			bufferB[i]=insertarCabecera(bufferB[i],i,1);// Inserta el bit de fin de trasmision demensaje
 		}else{
-			bufferB[i]=insertarCabecera(bufferB[i],i,0,0,0);
+			bufferB[i]=insertarCabecera(bufferB[i],i,0);
 		}
+
 		bufferB[i]=codificadorHamming(bufferB[i]);
 		bufferB[i]=relleno_Bit(bufferB[i]);
 		bufferB[i]=insercion_banderas(bufferB[i]);
-		cout<<"Trama: "<<bufferB[i]<<endl;
+		cout/*<<"Trama Hamming: "*/<<bufferB[i]<<endl;
 	}
 
 	
 	}
 /*------------------------------------------------------------------------------------------------*/
 ///----------------------------------------------------------------------------------------------///
-/*------------------------------------------------------------------------------------------------*/		
+/*------------------------------------------------------------------------------------------------*/	
+void hamming::recibir(binario bin){
+	size_t i,li,ls,j;
+	// binario bufferTramas[MAXMSJ/MAXT];
+	binario bufferB[MAXMSJ/MAXT*8];
+	 i=0;j=0;
+	while(i<bin.size()){
+		
+		li=bin.find("01111110",i);
+		ls=bin.find("01111110",i+8);
+		bufferB[j]=bin.substr(li,(ls+8)-li);
+
+		cout<<"Inferior "<<li<<" Superior "<<ls<<" Distancia "<<(ls+8)-li<<endl;
+		cout<<bufferB[j]<<endl;
+	j++;
+	i=ls+8;;
+	}
+
+
+
+
+}
+
+/*------------------------------------------------------------------------------------------------*/
+///----------------------------------------------------------------------------------------------///
+/*------------------------------------------------------------------------------------------------*/	
+
 	//inserta las banderas de inicio y fin a una trama
 binario hamming::insercion_banderas(binario bin_in){
-			binario bin_out="01111110";
-			bin_out+=bin_in;
-			return bin_out+"01111110";
+			return "01111110"+bin_in+"01111110";
 			}
 /*------------------------------------------------------------------------------------------------*/
 ///----------------------------------------------------------------------------------------------///
@@ -66,9 +93,9 @@ binario hamming::relleno_Bit(binario bin_in){
 /*------------------------------------------------------------------------------------------------*/
 
 // Inserta la cabecera
-binario hamming::insertarCabecera(binario bin_in,int CE,int T,int CR,int control){
+binario hamming::insertarCabecera(binario bin_in,int CE,int T){
 
-		return ("0"+bitset<2>(CE).to_string()+bitset<1>(T).to_string()+bitset<2>(CR).to_string()+bitset<2>(control).to_string()+bin_in);
+		return ("0"+bitset<4>(CE).to_string()+bitset<1>(T).to_string()+bin_in);
 }
 /*------------------------------------------------------------------------------------------------*/
 ///----------------------------------------------------------------------------------------------///
@@ -79,8 +106,7 @@ binario hamming::msjTobin(string mensaje){
 			for (i = 0; i < mensaje.size(); i++)
 			{
 				//cout<<bitset<8>(mensaje.c_str()[i]).to_string()<<endl;
-				bin+=bitset<8>(mensaje
-				[i]).to_string();
+				bin+=bitset<8>(mensaje[i]).to_string();
 			}
 			
 			
@@ -91,7 +117,7 @@ binario hamming::msjTobin(string mensaje){
 /*------------------------------------------------------------------------------------------------*/
 binario hamming::codificadorHamming(binario bin){
 	unsigned int i,j,k,m,n,p;
-	int b[700],acum;
+	int b[MAXMSJ],acum;
 	binario s="";
 	k=0;j=0;i=0;n=bin.size();//inicializacion
 	
