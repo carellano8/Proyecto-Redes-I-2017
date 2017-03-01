@@ -9,10 +9,10 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	srand(time(NULL));
-	for(int i=0; i<MAXC; i++)
+    srand(time(NULL));
+    for(int i=0; i<MAXC; i++)
     {
       cout<<(char)(LINF+rand()%(LSUP+1-LINF));
     }
-	return 0;
+    return 0;
 }

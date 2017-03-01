@@ -12,18 +12,18 @@ typedef string binario ;
 
 class hamming{
 public:
-	static void enviar(string msj);
-	static void recibir(binario bin);
+    static void enviar(string msj);
+    static void recibir(binario bin);
 private:
-	//Funciones propias
-	static binario codificadorHamming(binario bin);
-	static bool potencia2(int n);
-	//Funciones genericas
-	static binario msjTobin(string mensaje);
-	static binario relleno_Bit(binario bin_in);
-	static binario insercion_banderas(binario bin_in);
-	static binario insertarCabecera(binario bin_in,int CE,int T);
+    //Funciones propias
+    static binario codificadorHamming(binario bin);
+    static bool potencia2(int n);
+    //Funciones genericas
+    static binario msjTobin(string mensaje);
+    static binario relleno_Bit(binario bin_in);
+    static binario insercion_banderas(binario bin_in);
+    static binario insertarCabecera(binario bin_in,int CE,int T);
 };
 
 
-#endif 
+#endif

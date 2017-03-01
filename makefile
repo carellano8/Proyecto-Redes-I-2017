@@ -2,13 +2,13 @@
 EXE=main
 OBJS=main.o crc16.o hamming.o
 CC=g++
-FLAGS=-Wall -g
+FLAGS=-Wall -g -std=c++0x
 
 # Reglas explícitas
 # Para linkear todos los objetos y generar un ejecutable
 all:$(OBJS)
 	$(CC) $(FLAGS)  $(OBJS) -o $(EXE)
-	./$(EXE) 
+#	./$(EXE) 
 
 ddd:$(OBJS)
 	$(CC) $(FLAGS)  $(OBJS) -o $(EXE)
