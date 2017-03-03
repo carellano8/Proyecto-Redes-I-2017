@@ -55,24 +55,37 @@ int main(int argc, char **argv)
 void receptor(int c){
     string tramas="";
     char buff;
-    ifstream archivo2("canalcrc.txt");
-    if(archivo2.is_open()){
-        while (! archivo2.eof() )
-        {
+	if(c){
+	    ifstream archivo2("canalcrc.txt");
+	    if(archivo2.is_open()){
+	        while (! archivo2.eof() ){
 
-             buff=archivo2.get();
-             if(buff=='0'||buff=='1'){
-                tramas+=buff;}
-        }
-        if(c){
-            crc16::recibir(tramas);
-        }
-        else{
-            hamming::recibir(tramas);
-        }
-    archivo2.close();
-    }
+	             buff=archivo2.get();
+	             if(buff=='0'||buff=='1'){
+	                tramas+=buff;
+	            }
+	        }
+	        crc16::recibir(tramas);
+	        archivo2.close();
+	    }
+	}
+	else{
+	    ifstream archivo2("canalh.txt");
+	    if(archivo2.is_open()){
+	        while (! archivo2.eof() ){
+
+	             buff=archivo2.get();
+	             if(buff=='0'||buff=='1'){
+	                tramas+=buff;
+	            }
+	        }
+	        hamming::recibir(tramas);
+	        archivo2.close();
+	    }
+
+	}
 }
+
 void emisor(int c){
     ifstream archivo("entrada.txt");
     string mensaje="";

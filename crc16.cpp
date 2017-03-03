@@ -113,11 +113,11 @@ void crc16::recibir(binario bin){
     }
    
        
-    if(!error){// Cabecera Que no hay desorden en las tramas y que hay trama final
+    if(!error){// Cabecera, Que no hay desorden en las tramas y que hay trama final
         i=0;
-        while(!error&&i<j){// Verfificar CRC16
-            a=stoi(bufferB[i].substr(1,4), nullptr, 2);
-            b=stoi(bufferB[i].substr(5,1), nullptr , 2);
+        while(!error&&i<j){// 
+            a=BitStringToInt(bufferB[i].substr(1,4));
+            b=BitStringToInt(bufferB[i].substr(5,1));
             buffer2[a]=bufferB[i].substr(6);
             //cout<<a<<" "<<b<<" "<<buffer2[a]<<endl;
             i++;
@@ -132,7 +132,7 @@ void crc16::recibir(binario bin){
         {
             for (a = 0; a <buffer2[i].size() ; a+=8)
             {
-                bufferMsj+=(char)(stoi(buffer2[i].substr(a,8), nullptr, 2));
+                bufferMsj+=(char)(BitStringToInt(buffer2[i].substr(a,8)));
             }   
         }
 
@@ -147,9 +147,9 @@ void crc16::recibir(binario bin){
     
     
     if(error){
-        cout<<"Hay un error"<<endl;
+        cout<<"Se ha detectado algún un error"<<endl;
         if(archivo.is_open()){
-            archivo<<"Hay un error"<<endl;
+            archivo<<"Se ha detectado algún un error"<<endl;
             archivo.close();
         }
     }
@@ -244,3 +244,16 @@ binario crc16::insertarCabecera(binario bin_in,int CE,int T){
         return ("0"+bitset<4>(CE).to_string()+bitset<1>(T).to_string()+bin_in);
 }
 
+/*------------------------------------------------------------------------------------------------*/
+///----------------------------------------------------------------------------------------------///
+/*------------------------------------------------------------------------------------------------*/
+int crc16::BitStringToInt(string bin){
+	size_t i,n=bin.size(),acum=0;
+	for (i = 0; i < n; ++i)
+	{
+		if(bin[i]=='1'){
+			acum+=pow(2,n-(i+1)) ;
+		}
+	}
+	return acum;
+}

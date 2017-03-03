@@ -9,36 +9,47 @@ void hamming::enviar(string msj){
     string bufferMsj[MAXMSJ/MAXT];
     binario bufferB[MAXMSJ/MAXT*8];
     i=0;n=0;
+	ofstream archivo("canalh.txt");
 
-    while(i<msj.size()){
-        bufferMsj[n]=msj.substr(i,MAXT);
-        i+=MAXT;n++;
+    if(archivo.is_open()){
+	    while(i<msj.size()){
+	        bufferMsj[n]=msj.substr(i,MAXT);
+	        i+=MAXT;n++;
+	    }
+
+	    for (i = 0; i < n; ++i){
+	        bufferB[i]=msjTobin(bufferMsj[i]);
+
+	        if(i==n-1){
+	            bufferB[i]=insertarCabecera(bufferB[i],i,1);// Inserta el bit de fin de trasmision demensaje
+	        }else{
+	            bufferB[i]=insertarCabecera(bufferB[i],i,0);
+	        }
+
+	        bufferB[i]=codificadorHamming(bufferB[i]);
+	        bufferB[i]=relleno_Bit(bufferB[i]);
+	        bufferB[i]=insercion_banderas(bufferB[i]);
+	        archivo/*<<"Trama Hamming: "*/<<bufferB[i]<<endl;
+	    }
+
+        cout<<"tramas Enviadas "<<endl;
+        archivo.close();
     }
-
-    for (i = 0; i < n; ++i){
-        bufferB[i]=msjTobin(bufferMsj[i]);
-
-        if(i==n-1){
-            bufferB[i]=insertarCabecera(bufferB[i],i,1);// Inserta el bit de fin de trasmision demensaje
-        }else{
-            bufferB[i]=insertarCabecera(bufferB[i],i,0);
-        }
-
-        bufferB[i]=codificadorHamming(bufferB[i]);
-        bufferB[i]=relleno_Bit(bufferB[i]);
-        bufferB[i]=insercion_banderas(bufferB[i]);
-        cout/*<<"Trama Hamming: "*/<<bufferB[i]<<endl;
-    }
-
-
-    }
+ }
 /*------------------------------------------------------------------------------------------------*/
 ///----------------------------------------------------------------------------------------------///
 /*------------------------------------------------------------------------------------------------*/
 void hamming::recibir(binario bin){
-    size_t i,li,ls,j;
-    // binario bufferTramas[MAXMSJ/MAXT];
+	size_t i,li,ls,j,a,b;
+    int r;
+    bool error=false;
+    binario aux="";
     binario bufferB[MAXMSJ/MAXT*8];
+    binario buffer2[MAXMSJ/MAXT*8];
+    string bufferMsj;
+    ofstream archivo("salidah.txt");
+    
+   
      i=0;j=0;
     while(i<bin.size()){
 
@@ -46,15 +57,101 @@ void hamming::recibir(binario bin){
         ls=bin.find("01111110",i+8);
         bufferB[j]=bin.substr(li,(ls+8)-li);
 
-        cout<<"Inferior "<<li<<" Superior "<<ls<<" Distancia "<<(ls+8)-li<<endl;
-        cout<<bufferB[j]<<endl;
-    j++;
-    i=ls+8;;
+        //~ cout<<"Inferior "<<li<<" Superior "<<ls<<" Distancia "<<(ls+8)-li<<endl;
+        //~ cout<<bufferB[j]<<endl;
+        j++;
+        i=ls+8;;
     }
 
+    i=0;
+    while(!error&&i<j){// Verfificar que no hay error en las banderas 
+        if(bufferB[i].size()<=30){
+            error=true;
+        }
+        if(!error){
+            bufferB[i]=bufferB[i].substr(8,bufferB[i].size()-16);//quita las banderas 
+        }
+        i++;
+    }
+   	if(!error){// Quitar relleno de bits
+        for (i = 0; i < j; i++)
+        {
+        	b=0;aux="";a=0;
+        	while(a < bufferB[i].size())
+        	{
+        		if(bufferB[i].at(a)=='1'){
+                    b++;
+                }else{
+                    b=0;
+                    }
+                aux+=bufferB[i].at(a);		
+                if(b==5){
+                a++;b=0;
+                	}
+            a++;
+        	}
+        	
+        	bufferB[i]=aux;
 
+       	}
+    }
+            
+    
+    if(!error){// decodificar hamming
+        i=0;
+        while(!error&&i<j){// decodificar hamming
+        	// cout<<bufferB[i]<<endl;
+        	// cout<<crc(bufferB[i])<<endl;
+        	bufferB[i]=decodificadorHamming(bufferB[i],&r);
+        	cout<<"HOLA "<<r<<endl;
+            if(r==-1){
+                error=true;
+            }
+            i++;
+        }
+    }
+   
+       
+    if(!error){// Cabecera, Que no hay desorden en las tramas y que hay trama final
+        i=0;
+        while(!error&&i<j){// 
+            a=BitStringToInt(bufferB[i].substr(1,4));
+            b=BitStringToInt(bufferB[i].substr(5,1));
+            buffer2[a]=bufferB[i].substr(6);
+            //cout<<a<<" "<<b<<" "<<buffer2[a]<<endl;
+            i++;
+        }
+        if(!b){
+            error=true;
+        }
+    }
+    if(!error){
+        bufferMsj="";
+        for (i = 0; i <j ; i++)
+        {
+            for (a = 0; a <buffer2[i].size() ; a+=8)
+            {
+                bufferMsj+=(char)(BitStringToInt(buffer2[i].substr(a,8)));
+            }   
+        }
 
-
+        cout<<bufferMsj<<endl;
+        if(archivo.is_open()){
+            archivo<<bufferMsj;
+            archivo.close();
+        }
+    }
+    
+    
+    
+    
+    if(error){
+        cout<<"Se ha detectado algún un error"<<endl;
+        if(archivo.is_open()){
+            archivo<<"Se ha detectado algún un error"<<endl;
+            archivo.close();
+        }
+    }
 }
 
 /*------------------------------------------------------------------------------------------------*/
@@ -190,3 +287,98 @@ bool hamming::potencia2(int n){
         }
     return r;
     }
+
+/*------------------------------------------------------------------------------------------------*/
+///----------------------------------------------------------------------------------------------///
+/*------------------------------------------------------------------------------------------------*/
+binario hamming::decodificadorHamming(binario bin,int *r){
+    unsigned int i,j,k,m,n,p,x;
+    int b[MAXMSJ],acum;
+    binario s="";
+    char bp;
+    k=0;i=0;//inicializacion
+
+    bp=bin.at(bin.size()-1);
+   	bin=bin.substr(0,bin.size()-1);
+    n=bin.size();
+    
+    for (i = 0; i < n; ++i)
+    {
+    	b[i]=(bin[i]=='1')?1:0;
+    }
+    j=0;i=0;
+    while(j<n){
+
+        p=pow(2,i);
+        k=p-1;acum=0;
+        while(k<n){
+
+                for(m=k;m<p+k&&m<n;m++){
+                    // if(m!=p-1){
+                        acum+=b[m];
+                    // }
+                }
+                k=p+m;
+            }
+        if(acum%2==0){
+            s.insert(0,"0");
+            }
+        else{
+        	s.insert(0,"1");
+        }
+     i++;j=pow(2,i);
+    }
+   
+    acum=0;
+    for (i = 0; i < n; i++){
+        acum+=b[i];
+    }
+    if(acum%2==0){
+        j=0;
+        }
+    else{
+    	j=1;
+    }
+    //termina la decodificacion
+	cout<<s<<" "<<j<<endl;
+    x=BitStringToInt(s);
+    if(x!=0){x--;}
+   
+    if((((int)j+'0')!=bp)&&x!=0){//paridad mala y hamming malo
+    	if(bin[x]=='1'){
+    		bin.replace(x,1,"0");
+    		*r=0;
+    	}
+    }else{
+    	if((((int)j+'0')==bp)&&x!=0){
+    		*r=-1;
+    	}
+    	else{
+    		*r=1;
+    	}
+    }
+    if(*r!=-1){
+    	s="";
+    	for (i = 0; i < n; ++i)
+    	{
+    		if(!potencia2(i+1)){
+    			s+=bin[i];
+    		}
+    	}
+    }
+    
+    return s;
+    }
+    /*------------------------------------------------------------------------------------------------*/
+///----------------------------------------------------------------------------------------------///
+/*------------------------------------------------------------------------------------------------*/
+int hamming::BitStringToInt(string bin){
+	size_t i,n=bin.size(),acum=0;
+	for (i = 0; i < n; ++i)
+	{
+		if(bin[i]=='1'){
+			acum+=pow(2,n-(i+1)) ;
+		}
+	}
+	return acum;
+}

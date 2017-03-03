@@ -16,6 +16,7 @@ public:
     static void recibir(binario bin);
 private:
     //Funciones propias
+    static binario decodificadorHamming(binario bin,int *r);
     static binario codificadorHamming(binario bin);
     static bool potencia2(int n);
     //Funciones genericas
@@ -23,6 +24,7 @@ private:
     static binario relleno_Bit(binario bin_in);
     static binario insercion_banderas(binario bin_in);
     static binario insertarCabecera(binario bin_in,int CE,int T);
+    static int BitStringToInt(string bin);
 };
 
 

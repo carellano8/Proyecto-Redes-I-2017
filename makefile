@@ -2,7 +2,7 @@
 EXE=main
 OBJS=main.o crc16.o hamming.o
 CC=g++
-FLAGS=-Wall -g -std=c++0x
+FLAGS=-Wall -g 
 
 # Reglas explícitas
 # Para linkear todos los objetos y generar un ejecutable
