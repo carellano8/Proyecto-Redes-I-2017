@@ -122,6 +122,7 @@ void crc16::recibir(binario bin){
             //cout<<a<<" "<<b<<" "<<buffer2[a]<<endl;
             i++;
         }
+        //~ b=BitStringToInt(buffer2[i-1].substr(5,1));
         if(!b){
             error=true;
         }
@@ -147,9 +148,9 @@ void crc16::recibir(binario bin){
     
     
     if(error){
-        cout<<"Se ha detectado algún un error"<<endl;
+        cout<<"Se ha detectado algun un error"<<endl;
         if(archivo.is_open()){
-            archivo<<"Se ha detectado algún un error"<<endl;
+            archivo<<"Se ha detectado algun un error"<<endl;
             archivo.close();
         }
     }

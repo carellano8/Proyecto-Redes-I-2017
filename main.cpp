@@ -89,16 +89,17 @@ void receptor(int c){
 void emisor(int c){
     ifstream archivo("entrada.txt");
     string mensaje="";
-
+    int i;
     char buff;
     if(archivo.is_open()){
-
-        while (! archivo.eof() )
+        i=0;
+        while (!archivo.eof()&&i<2000)
         {
 
              buff=archivo.get();
-             if(buff>=32&&buff<=126){
+             if((buff>=32&&buff<=126)/*||buff=='\n'*/){
                 mensaje+=buff;}
+            i++;
         }
 
         if(c){

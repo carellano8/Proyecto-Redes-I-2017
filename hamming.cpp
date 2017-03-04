@@ -103,7 +103,7 @@ void hamming::recibir(binario bin){
         	// cout<<bufferB[i]<<endl;
         	// cout<<crc(bufferB[i])<<endl;
         	bufferB[i]=decodificadorHamming(bufferB[i],&r);
-        	cout<<"HOLA "<<r<<endl;
+        	//~ cout<<"HOLA "<<r<<endl;
             if(r==-1){
                 error=true;
             }
@@ -146,9 +146,9 @@ void hamming::recibir(binario bin){
     
     
     if(error){
-        cout<<"Se ha detectado algún un error"<<endl;
+        cout<<"Se ha detectado algun un error"<<endl;
         if(archivo.is_open()){
-            archivo<<"Se ha detectado algún un error"<<endl;
+            archivo<<"Se ha detectado algun un error"<<endl;
             archivo.close();
         }
     }
@@ -217,7 +217,7 @@ binario hamming::codificadorHamming(binario bin){
     int b[MAXMSJ],acum;
     binario s="";
     k=0;j=0;i=0;n=bin.size();//inicializacion
-
+    
     while(k<=n){
         if(pow(2,j)==(i+1)){//si es potencia de 2 se omite el vector se rellena con 0
             j++;
@@ -231,8 +231,9 @@ binario hamming::codificadorHamming(binario bin){
         }
     n+=j;
     j--;
+    //~ cout<<j<<" "<<n<<endl;
     if(potencia2(n)){n--;}
-    for(i=0;i<j;i++){
+    for(i=0;i<=j;i++){
 
         p=pow(2,i);
         k=p-1;acum=0;
@@ -243,9 +244,12 @@ binario hamming::codificadorHamming(binario bin){
                         acum+=b[m];
 
                     }
+                    //~ cout<<m<<" ";
                 }
+                //~ cout<<endl;
                 k=p+m;
             }
+            //~ cout<<endl;
         if(acum%2!=0){
             b[p-1]=1;
             }
@@ -255,7 +259,7 @@ binario hamming::codificadorHamming(binario bin){
         acum+=b[i];
         s+=(b[i]+'0');
     }
-
+    //~ cout<<s<<" "<<j<<endl;
     if(acum%2==0){
         b[n]=0;
         s+='0';
@@ -264,7 +268,7 @@ binario hamming::codificadorHamming(binario bin){
         b[n]=1;
         s+='1';
         }
-    n++;
+    //~ n++;
 
     //~ cout<<"Tamano: "<<n<<" | Bits de paridad: "<<j<<endl<<"Binario: ";
     //~ for(i = 0; i <n ; i++){
@@ -317,9 +321,12 @@ binario hamming::decodificadorHamming(binario bin,int *r){
                     // if(m!=p-1){
                         acum+=b[m];
                     // }
+                    //~ cout<<m<<" ";
                 }
+                //~ cout<<endl;
                 k=p+m;
             }
+            //~ cout<<endl;
         if(acum%2==0){
             s.insert(0,"0");
             }
@@ -328,7 +335,7 @@ binario hamming::decodificadorHamming(binario bin,int *r){
         }
      i++;j=pow(2,i);
     }
-   
+    
     acum=0;
     for (i = 0; i < n; i++){
         acum+=b[i];
@@ -340,7 +347,7 @@ binario hamming::decodificadorHamming(binario bin,int *r){
     	j=1;
     }
     //termina la decodificacion
-	cout<<s<<" "<<j<<endl;
+	//~ cout<<s<<" "<<j<<endl;
     x=BitStringToInt(s);
     if(x!=0){x--;}
    
