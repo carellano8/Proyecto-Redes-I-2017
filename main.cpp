@@ -79,8 +79,22 @@ void receptor(int c){
 	        archivo2.close();
             if(error){
                 cout<<"Se ha detectado algun un error"<<endl;
+                ofstream archivo("salidacrc.txt");  
+                if(archivo.is_open()){
+                    archivo<<"Se ha detectado algun un error"<<endl;
+                    archivo.close();
+                }else{
+                    cout<<"Se ha detectado algun un error"<<endl;
+                }
             }
 	    }else{
+            ofstream archivo("salidacrc.txt");  
+            if(archivo.is_open()){
+            archivo<<"Se ha detectado algun un error"<<endl;
+            archivo.close();
+            }else{
+                cout<<"Se ha detectado algun un error"<<endl;
+            }
 
             cout<<"Se ha detectado algun un error"<<endl;
         }
@@ -108,9 +122,22 @@ void receptor(int c){
             archivo2.close();
             if(error){
                 cout<<"Se ha detectado algun un error"<<endl;
+                ofstream archivo("salidah.txt");
+                if(archivo.is_open()){
+                    archivo<<"Se ha detectado algun un error"<<endl;
+                    archivo.close();
+                }else{
+                    cout<<"Se ha detectado algun un error"<<endl;
+                }
             }
 	    }else{
-
+            ofstream archivo("salidah.txt");
+            if(archivo.is_open()){
+                archivo<<"Se ha detectado algun un error"<<endl;
+                archivo.close();
+            }else{
+                cout<<"Se ha detectado algun un error"<<endl;
+            }
             cout<<"Se ha detectado algun un error"<<endl;
         }
 
