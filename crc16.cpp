@@ -33,7 +33,10 @@ void crc16::enviar(string msj){
         }
         cout<<"tramas Enviadas "<<endl;
         archivo.close();
-    }
+    }else{
+
+            cout<<"Se ha detectado algun un error"<<endl;
+        }
     
 
 }
@@ -63,6 +66,7 @@ void crc16::recibir(binario bin){
         j++;
         i=ls+8;;
     }
+    if(j>16){error=true;}// maximo 16 tramas 
 
     i=0;
     while(!error&&i<j){// Verfificar que no hay error en las banderas 
@@ -152,6 +156,8 @@ void crc16::recibir(binario bin){
         if(archivo.is_open()){
             archivo<<"Se ha detectado algun un error"<<endl;
             archivo.close();
+        }else{
+            cout<<"Se ha detectado algun un error"<<endl;
         }
     }
 }

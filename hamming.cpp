@@ -34,6 +34,8 @@ void hamming::enviar(string msj){
 
         cout<<"tramas Enviadas "<<endl;
         archivo.close();
+    }else{
+    	cout<<"Se ha detectado algun un error"<<endl;
     }
  }
 /*------------------------------------------------------------------------------------------------*/
@@ -62,7 +64,7 @@ void hamming::recibir(binario bin){
         j++;
         i=ls+8;;
     }
-
+    if(j>16){error=true;}// maximo 16 tramas 
     i=0;
     while(!error&&i<j){// Verfificar que no hay error en las banderas 
         if(bufferB[i].size()<=30){
@@ -138,7 +140,13 @@ void hamming::recibir(binario bin){
         cout<<bufferMsj<<endl;
         if(archivo.is_open()){
             archivo<<bufferMsj;
+            if(r==0){
+            	cout<<"Se ha detectado y corregido un error"<<endl;
+            	archivo<<endl<<"Se ha detectado y corregido un error"<<endl;
+            }
             archivo.close();
+        }else{
+        	cout<<"Se ha detectado algun un error"<<endl;
         }
     }
     
@@ -150,6 +158,8 @@ void hamming::recibir(binario bin){
         if(archivo.is_open()){
             archivo<<"Se ha detectado algun un error"<<endl;
             archivo.close();
+        }else{
+        	cout<<"Se ha detectado algun un error"<<endl;
         }
     }
 }
@@ -347,21 +357,25 @@ binario hamming::decodificadorHamming(binario bin,int *r){
     	j=1;
     }
     //termina la decodificacion
-	//~ cout<<s<<" "<<j<<endl;
+	// cout<<s<<" "<<j<<endl;
     x=BitStringToInt(s);
     if(x!=0){x--;}
-   
+  
     if((((int)j+'0')!=bp)&&x!=0){//paridad mala y hamming malo
+    	
     	if(bin[x]=='1'){
     		bin.replace(x,1,"0");
-    		*r=0;
+    	}else{
+    		bin.replace(x,1,"1");
     	}
+
+    	*r=0;//Se repara un error
     }else{
     	if((((int)j+'0')==bp)&&x!=0){
-    		*r=-1;
+    		*r=-1;//error doble
     	}
     	else{
-    		*r=1;
+    		*r=1;//sin error
     	}
     }
     if(*r!=-1){

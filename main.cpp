@@ -55,19 +55,35 @@ int main(int argc, char **argv)
 void receptor(int c){
     string tramas="";
     char buff;
+    bool error=false;
 	if(c){
 	    ifstream archivo2("canalcrc.txt");
 	    if(archivo2.is_open()){
-	        while (! archivo2.eof() ){
+	        while (! archivo2.eof() &&!error){
 
 	             buff=archivo2.get();
 	             if(buff=='0'||buff=='1'){
-	                tramas+=buff;
-	            }
+                         tramas+=buff;
+	               }else{
+                        
+                        if(buff!= EOF&&buff!='\n'){
+                            error=true;
+                            
+                        }
+                    
+                 }
 	        }
-	        crc16::recibir(tramas);
+            if(!error){
+	           crc16::recibir(tramas);
+                }
 	        archivo2.close();
-	    }
+            if(error){
+                cout<<"Se ha detectado algun un error"<<endl;
+            }
+	    }else{
+
+            cout<<"Se ha detectado algun un error"<<endl;
+        }
 	}
 	else{
 	    ifstream archivo2("canalh.txt");
@@ -76,12 +92,27 @@ void receptor(int c){
 
 	             buff=archivo2.get();
 	             if(buff=='0'||buff=='1'){
-	                tramas+=buff;
-	            }
+                         tramas+=buff;
+                   }else{
+                        
+                        if(buff!= EOF&&buff!='\n'){
+                            error=true;
+                            
+                        }
+                    
+                 }
 	        }
-	        hamming::recibir(tramas);
-	        archivo2.close();
-	    }
+            if(!error){
+	           hamming::recibir(tramas);
+	        }
+            archivo2.close();
+            if(error){
+                cout<<"Se ha detectado algun un error"<<endl;
+            }
+	    }else{
+
+            cout<<"Se ha detectado algun un error"<<endl;
+        }
 
 	}
 }
@@ -89,25 +120,47 @@ void receptor(int c){
 void emisor(int c){
     ifstream archivo("entrada.txt");
     string mensaje="";
-    int i;
+    int i,j=0;
     char buff;
+    bool error=false;
     if(archivo.is_open()){
         i=0;
-        while (!archivo.eof()&&i<2000)
+        while (!archivo.eof()&&!error)
         {
 
              buff=archivo.get();
              if((buff>=32&&buff<=126)/*||buff=='\n'*/){
-                mensaje+=buff;}
+                mensaje+=buff;
+            }else{
+                
+                if(buff!= EOF&&buff!='\n' ){//solo se ecepta un salto de linea y fin de archivo
+                   // cout<<buff<<endl;
+                    error=true;
+                }
+                if(buff=='\n'){
+                        j++;
+                   }
+                if(buff==EOF){i--;}
+            }
+            if(j>=2){error=true;}
             i++;
         }
-
-        if(c){
-            crc16::enviar(mensaje);
-            }
-        else{
-            hamming::enviar(mensaje);
+        
+        if(i-1>MAXMSJ){error=true;}
+        if(!error){
+            if(c){
+                crc16::enviar(mensaje);
+                }
+            else{
+                hamming::enviar(mensaje);
+                }   
+        }
+        if(error){
+            cout<<"Se ha detectado algun un error"<<endl;
         }
         archivo.close();
-    }
+    }else{
+
+            cout<<"Se ha detectado algun un error"<<endl;
+        }
 }
